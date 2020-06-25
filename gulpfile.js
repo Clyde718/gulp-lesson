@@ -33,7 +33,7 @@ gulp.task('styles', () => {
     }))
     // 
     .pipe(gulp.dest('./build/css')) // Выходная папка для стилей - то куда конечный файл будет положен
-    .pipe(browserSync.stream())     // после проделанных манипуляций browserSync обновит сервер 
+    .pipe(browserSync.reload({ stream: true }));     // после проделанных манипуляций browserSync обновит сервер 
 });
 
 
@@ -44,7 +44,7 @@ gulp.task('scripts', () => {
       toplevel: true                // Настройка - максимальный уровень минификации
     }))
     .pipe(gulp.dest('./build/js'))
-    .pipe(browserSync.stream())
+    .pipe(browserSync.reload({ stream: true }));
 });
 
 
@@ -62,21 +62,26 @@ gulp.task('gulp-imagemin', () => {
 })
 
 
-gulp.task('watch', () => {          // ТАск для отслеживания изменений
+gulp.task('browser-sync', () => {          // ТАск для отслеживания изменений
   browserSync.init({                // запуск сервера
     server: {
       baseDir: "./"
     }
   });
-
-  gulp.watch('./src/img/**', gulp.series('gulp-imagemin'))
-  gulp.watch('./src/css/**/*.css', gulp.series('styles'))       // Следить за CSS файлами и при изменении запускать функ styles
-  gulp.watch('./src/js/**/*.js', gulp.series('scripts'))        // Следить за JS файлами и при изменении запускать функ scripts
-  gulp.watch("./*.html").on('change', browserSync.reload)       // Следить за html и при изменении перезагружать сервер 
 });
 
 
-gulp.task('default', gulp.series('del', gulp.parallel('styles', 'scripts', 'gulp-imagemin'), 'watch'))
+gulp.watch('./src/img/**', gulp.series('gulp-imagemin'))
+gulp.watch('./src/css/**/*.css', gulp.series('styles'))       // Следить за CSS файлами и при изменении запускать функ styles
+gulp.watch('./src/js/**/*.js', gulp.series('scripts'))        // Следить за JS файлами и при изменении запускать функ scripts
+gulp.watch("./*.html").on('change', browserSync.reload)       // Следить за html и при изменении перезагружать сервер 
+
+
+gulp.task('default', gulp.series('del', gulp.parallel('styles', 'scripts', 'gulp-imagemin'), 'browser-sync'))
+// Соблюдается последовательность
+// 1. Очищаем папку build
+// 2. Запускаем сборку стилей, скриптов, картинок
+// 3. Запускаем watch для обновления сервера browserSync
 
 
 
